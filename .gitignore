@@ -1,0 +1,4 @@
+# Don't put SQLite DB in GIT
+**/.DS_Store
+**/*.db
+**/chromedriver
