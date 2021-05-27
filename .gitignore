@@ -1,5 +1,6 @@
 # Don't put SQLite DB in GIT
 **/.DS_Store
+**/*.db-journal
 **/*.db
 **/chromedriver
 **/__pycache__
