@@ -84,6 +84,20 @@ def next_unprocessed_video():
     conn.close()
     return vid
 
+def next_uncomputed_video():
+    conn = create_connection()
+    sql = """SELECT id
+             FROM   videos
+             WHERE  tweet_count IS NULL"""
+    cur = conn.cursor()
+    cur.execute(sql)
+    video = cur.fetchone()
+    conn.close()
+    if video:
+        return video[0]
+    else:
+        return None
+
 def next_unprocessed_tweet():
     conn = create_connection()
     sql = """SELECT id, raw_html
@@ -172,5 +186,41 @@ def set_video_to_scraped(video_id):
              WHERE  id = ?"""
     cur = conn.cursor()
     cur.execute(sql, (video_id,))
+    conn.commit()
+    conn.close()
+
+def create_columns_for_video_stats():
+    conn = create_connection()
+    sql = ["ALTER TABLE videos ADD tweet_count integer;",
+           "ALTER TABLE videos ADD retweet_count integer;",
+           "ALTER TABLE videos ADD like_count integer;",
+           "ALTER TABLE videos ADD reply_count integer;",
+           "ALTER TABLE videos ADD normalized_tweet_count real;",
+           "ALTER TABLE videos ADD normalized_retweet_count real;",
+           "ALTER TABLE videos ADD normalized_like_count real;",
+           "ALTER TABLE videos ADD normalized_reply_count real;"]
+
+    cur = conn.cursor()
+    for s in sql:
+        cur.execute(s)
+
+    conn.commit()
+    conn.close()
+
+def compute_stats(video_id):
+    conn = create_connection()
+    sql = ["UPDATE videos SET tweet_count = (SELECT COUNT(*) FROM tweets WHERE video_id = videos.id) WHERE id = ?",
+           "UPDATE videos SET retweet_count = (SELECT SUM(retweets) FROM tweets WHERE video_id = videos.id) WHERE id = ?",
+           "UPDATE videos SET like_count = (SELECT SUM(likes) FROM tweets WHERE video_id = videos.id) WHERE id = ?",
+           "UPDATE videos SET reply_count = (SELECT SUM(replies) FROM tweets WHERE video_id = videos.id) WHERE id = ?",
+           "UPDATE videos SET normalized_tweet_count = (SELECT tweet_count*1.0 / views FROM videos WHERE id = id) WHERE id = ?",
+           "UPDATE videos SET normalized_retweet_count = (SELECT retweet_count*1.0 / views FROM videos WHERE id = id) WHERE id = ?",
+           "UPDATE videos SET normalized_like_count = (SELECT like_count*1.0 / views FROM videos WHERE id = id) WHERE id = ?",
+           "UPDATE videos SET normalized_reply_count = (SELECT reply_count*1.0 / views FROM videos WHERE id = id) WHERE id = ?"]
+
+    cur = conn.cursor()
+    for s in sql:
+        cur.execute(s, (video_id,))
+
     conn.commit()
     conn.close()

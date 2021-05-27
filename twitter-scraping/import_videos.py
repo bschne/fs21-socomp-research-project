@@ -12,7 +12,6 @@ def main():
     with open(filename) as f:
         data = json.load(f)
 
-    # TODO: Remove
     for category in data.keys():
         for channel in data[category].keys():
             for video in data[category][channel]:
