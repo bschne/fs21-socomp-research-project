@@ -6,6 +6,7 @@ def main():
 		if not video_id:
 			break
 
+		print("Processing stats for video ID " + str(video_id) + "...")
 		compute_stats(video_id)
 
 
