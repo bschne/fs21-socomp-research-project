@@ -209,18 +209,18 @@ def create_columns_for_video_stats():
 
 def compute_stats(video_id):
     conn = create_connection()
-    sql = ["UPDATE videos SET tweet_count = (SELECT COUNT(*) FROM tweets WHERE video_id = videos.id) WHERE id = ?",
-           "UPDATE videos SET retweet_count = (SELECT SUM(retweets) FROM tweets WHERE video_id = videos.id) WHERE id = ?",
-           "UPDATE videos SET like_count = (SELECT SUM(likes) FROM tweets WHERE video_id = videos.id) WHERE id = ?",
-           "UPDATE videos SET reply_count = (SELECT SUM(replies) FROM tweets WHERE video_id = videos.id) WHERE id = ?",
-           "UPDATE videos SET normalized_tweet_count = (SELECT tweet_count*1.0 / views FROM videos WHERE id = id) WHERE id = ?",
-           "UPDATE videos SET normalized_retweet_count = (SELECT retweet_count*1.0 / views FROM videos WHERE id = id) WHERE id = ?",
-           "UPDATE videos SET normalized_like_count = (SELECT like_count*1.0 / views FROM videos WHERE id = id) WHERE id = ?",
-           "UPDATE videos SET normalized_reply_count = (SELECT reply_count*1.0 / views FROM videos WHERE id = id) WHERE id = ?"]
+    sql = ["UPDATE videos SET tweet_count = (SELECT COUNT(*) FROM tweets WHERE video_id = ?) WHERE id = ?",
+           "UPDATE videos SET retweet_count = (SELECT SUM(retweets) FROM tweets WHERE video_id = ?) WHERE id = ?",
+           "UPDATE videos SET like_count = (SELECT SUM(likes) FROM tweets WHERE video_id = ?) WHERE id = ?",
+           "UPDATE videos SET reply_count = (SELECT SUM(replies) FROM tweets WHERE video_id = ?) WHERE id = ?",
+           "UPDATE videos SET normalized_tweet_count = (SELECT tweet_count*1.0 / views FROM videos WHERE id = ?) WHERE id = ?",
+           "UPDATE videos SET normalized_retweet_count = (SELECT retweet_count*1.0 / views FROM videos WHERE id = ?) WHERE id = ?",
+           "UPDATE videos SET normalized_like_count = (SELECT like_count*1.0 / views FROM videos WHERE id = ?) WHERE id = ?",
+           "UPDATE videos SET normalized_reply_count = (SELECT reply_count*1.0 / views FROM videos WHERE id = ?) WHERE id = ?"]
 
     cur = conn.cursor()
     for s in sql:
-        cur.execute(s, (video_id,))
+        cur.execute(s, (video_id, video_id))
 
     conn.commit()
     conn.close()
